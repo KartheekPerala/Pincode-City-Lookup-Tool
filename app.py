@@ -3,12 +3,15 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from rapidfuzz import process, fuzz
 import pandas as pd
+import json
+from io import StringIO
 
 
 @st.cache_resource
 def load_data():
     scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-    creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json.json", scope)
+    creds_dict = json.loads(st.secrets["GOOGLE_CREDENTIALS"])
+    creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
     client = gspread.authorize(creds)
     sheet = client.open_by_url("https://docs.google.com/spreadsheets/d/1eler29P76woO5wM756lAGk_4cvxoFnFRmlaJG7ZPYrM/edit?gid=973198101#gid=973198101").sheet1
     data = sheet.get_all_records()
