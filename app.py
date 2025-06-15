@@ -5,15 +5,18 @@ from rapidfuzz import process, fuzz
 import pandas as pd
 import json
 from io import StringIO
+from google.oauth2.service_account import Credentials
 
-
-@st.cache_resource
+@st.cache_data
 def load_data():
-    scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+    scope = ["https://www.googleapis.com/auth/spreadsheets.readonly",
+             "https://www.googleapis.com/auth/drive.readonly"]
+    
     creds_dict = json.loads(st.secrets["GOOGLE_CREDENTIALS"])
-    creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
+    creds = Credentials.from_service_account_info(creds_dict, scopes=scope)
+    
     client = gspread.authorize(creds)
-    sheet = client.open_by_url("https://docs.google.com/spreadsheets/d/1eler29P76woO5wM756lAGk_4cvxoFnFRmlaJG7ZPYrM/edit?gid=973198101#gid=973198101").sheet1
+    sheet = client.open_by_url("https://docs.google.com/spreadsheets/d/1eler29P76woO5wM756lAGk_4cvxoFnFRmlaJG7ZPYrM/edit#gid=973198101").sheet1
     data = sheet.get_all_records()
     return data
 
